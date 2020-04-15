@@ -16,11 +16,11 @@ class Point {
   }
   Set(x, y) {
     switch (typeof(x)) {
-     case "number":
+    case "number":
       this.x_ = x;
       this.y_ = y;
       break;
-     case "object":
+    case "object":
       this.Set(x.x_, x.y_);
       break;
     }
@@ -30,32 +30,28 @@ class Point {
   }
 }
 class Instance {
-  #position_;
-  #size_;
-  #color_;
-  #tag_;
   constructor() {
-    this.color_ = "#f0f";
-    this.position_;
-    this.size_;
-    this.tag_ = CreateTag();
+    this._color_ = "#f0f";
+    this._position_ = new Point();
+    this._size_ = new Point();
+    this._tag_ = CreateTag();
   }
-  set size(size) {this.size_ = size;}
-  get size() {return this.size_;}
-  set position(position) {this.position_ = position;}
-  get position() {return this.position_;}
-  set color(color) {this.color_ = color;}
+  set size(size) {this._size_.Set(size);}
+  get size() {return this._size_;}
+  set position(position) {this._position_.Set(position);}
+  get position() {return this._position_;}
+  set color(color) {this._color_ = color;}
   ApplyProperties() {
-    SetCss(this.tag_, "left", this.position_.x_ + "px");
-    SetCss(this.tag_, "top", this.position_.y_ + "px");
-    SetCss(this.tag_, "width", this.size_.x_ + "px");
-    SetCss(this.tag_, "height", this.size_.y_ + "px");
-    SetCss(this.tag_, "backgroundColor", this.color_);
+    SetCss(this._tag_, "left", this.position.x_ + "px");
+    SetCss(this._tag_, "top", this.position.y_ + "px");
+    SetCss(this._tag_, "width", this.size.x_ + "px");
+    SetCss(this._tag_, "height", this.size.y_ + "px");
+    SetCss(this._tag_, "backgroundColor", this._color_);
   }
   Area() {
     ReportError("The subclass doesn't implement Instance.Area() method.");
   }
-  Destroy() {this.tag_.remove();}
+  Destroy() {this._tag_.remove();}
 }
 class Circle extends Instance {
   set size(size) {
@@ -66,14 +62,14 @@ class Circle extends Instance {
       }
       size.y_ = size.x_;
     }
-    this.size_ = size;
+    super.size = size;
   }
   get size() {return super.size;}
   ApplyProperties() {
     super.ApplyProperties();
-    SetCss(this.tag_, "borderRadius", "50%");
+    SetCss(this._tag_, "borderRadius", "50%");
   }
-  Area() {return Math.PI*Math.pow(size_.x_, 2);}
+  Area() {return Math.PI*Math.pow(this.size.x_, 2);}
 }
 {
   let phyisical_instances = [];
@@ -101,13 +97,13 @@ class Circle extends Instance {
       instance.color = "rgb(" + 255*Math.random() + ", " +
                                 255*Math.random() + ", " +
                                 255*Math.random() + ")";
-      mousedown_position.x_ = event.pageX;
-      mousedown_position.y_ = event.pageY;
+      mousedown_position.Set(event.pageX, event.pageY);
     });
     document.addEventListener("mousemove", (event) => {
       if (instance === undefined) return;
-      let size = Math.max(Math.abs(event.pageX - mousedown_position.x_),
-                          Math.abs(event.pageY - mousedown_position.y_))
+      let size = Math.max(
+        Math.abs(event.pageX - mousedown_position.x_),
+        Math.abs(event.pageY - mousedown_position.y_));
       instance.size = new Point(size);
       let position = new Point();
       position.Set(mousedown_position);
@@ -116,7 +112,7 @@ class Circle extends Instance {
       instance.position = position;
       instance.ApplyProperties();
     });
-    document.addEventListener("mouseup", (event) => {
+    document.addEventListener("mouseup", () => {
       if (instance.size !== undefined && instance.size.IsBigger(minimun_size)) {
         phyisical_instances.push(instance);
       } else {
