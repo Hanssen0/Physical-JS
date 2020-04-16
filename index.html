@@ -4,12 +4,43 @@
   <title>Phyisic</title>
 </head>
 <body>
+  <button id="PhyisicalSwitch">
+    <img id="PhyisicalSwitch-Image" />
+  </button>
+  <button id="ClearButton">
+    <img src="assets/delete.svg" />
+  </button>
 </body>
 <script src="index.js"></script>
 <style>
   body {
+    box-sizing: border-box;
     height: 100vh;
     margin: 0;
+    padding: 1.854em;
     width: 100vw;
+  }
+  button {
+    align-items: center;
+    background: none;
+    border: #f06292 4px solid;
+    border-radius: 50%;
+    display: flex;
+    height: 3em;
+    justify-content: center;
+    margin-bottom: 1.146em;
+    outline: none;
+    transition: 0.3s background ease-in-out;
+    width: 3em;
+  }
+  button:hover {
+    background: #fce4ec;
+  }
+  button:active {
+    background: #f8bbd0;
+  }
+  div {
+    position: absolute;
+    transition: 0.3s box-shadow ease-in-out;
   }
 </style>
