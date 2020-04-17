@@ -137,28 +137,28 @@ function Collision(v1, v2, m1, m2) {
     v1.Multiply(2*m1/m1_plus_m2).Plus(v2.Multiply((m2 - m1)/m1_plus_m2))];
 }
 {
-  let phyisical_instances = [];
-  function InitPhyical(instance) {
-    instance.phyisical = {};
-    instance.phyisical.speed = new Vector2D(0, 0);
+  let physical_instances = [];
+  function InitPhysical(instance) {
+    instance.physical = {};
+    instance.physical.speed = new Vector2D(0, 0);
   }
   let g = 1;
-  let phyisical_thread;
+  let physical_thread;
   {
-    let PhyisicalHandler = () => {
-      phyisical_instances.forEach((instance, index) => {
-        if (instance.phyisical === undefined) InitPhyical(instance);
-        instance.phyisical.speed.y_ += g;
-        instance.position.PlusEqual(instance.phyisical.speed);
+    let PhysicalHandler = () => {
+      physical_instances.forEach((instance, index) => {
+        if (instance.physical === undefined) InitPhysical(instance);
+        instance.physical.speed.y_ += g;
+        instance.position.PlusEqual(instance.physical.speed);
         let execess = instance.position.y_ + instance.size.y_ - window.innerHeight;
         if (execess >= 0) {
-          instance.phyisical.speed.y_ -= g*execess/instance.phyisical.speed.y_;
+          instance.physical.speed.y_ -= g*execess/instance.physical.speed.y_;
           instance.position.y_ -= execess;
-          let v = new Vector2D(0, instance.phyisical.speed.y_);
-          instance.phyisical.speed.MinusEqual(v).PlusEqual(Collision(v, undefined, instance.Area(), undefined)[0].Multiply(0.8));
+          let v = new Vector2D(0, instance.physical.speed.y_);
+          instance.physical.speed.MinusEqual(v).PlusEqual(Collision(v, undefined, instance.Area(), undefined)[0].Multiply(0.8));
         }
         for (let i = 0; i < index; ++i) {
-          let ins = phyisical_instances[i];
+          let ins = physical_instances[i];
           if (instance.IsCollided(ins)) {
             let center_fix = ins.Radius() - instance.Radius();
             let distance = ins.position.Minus(instance.position).Plus(center_fix);
@@ -168,38 +168,38 @@ function Collision(v1, v2, m1, m2) {
                 direction.Multiply(instance.Radius() + ins.Radius())
               ).Plus(center_fix);
             let v1 =
-              direction.Multiply(instance.phyisical.speed.Multiply(direction));
-            let v2 = direction.Multiply(ins.phyisical.speed.Multiply(direction));
+              direction.Multiply(instance.physical.speed.Multiply(direction));
+            let v2 = direction.Multiply(ins.physical.speed.Multiply(direction));
             if (v1.Plus(v2).Multiply(direction) <= 0) continue;
             let speeds = Collision(v1, v2, instance.Area(), ins.Area());
-            instance.phyisical.speed.MinusEqual(v1).PlusEqual(speeds[0]);
-            ins.phyisical.speed.MinusEqual(v2).PlusEqual(speeds[1]);
+            instance.physical.speed.MinusEqual(v1).PlusEqual(speeds[0]);
+            ins.physical.speed.MinusEqual(v2).PlusEqual(speeds[1]);
           }
         }
       });
-      phyisical_instances.forEach((instance) => instance.ApplyProperties());
+      physical_instances.forEach((instance) => instance.ApplyProperties());
     };
-    phyisical_thread = setInterval(PhyisicalHandler, 1000/60);
+    physical_thread = setInterval(PhysicalHandler, 1000/60);
     const pause_image = "assets/pause.svg";
     const play_image = "assets/play_arrow.svg";
-    let phyisical_switch = document.getElementById("PhyisicalSwitch");
-    let phyisical_switch_image =
-      document.getElementById("PhyisicalSwitch-Image");
-    phyisical_switch_image.src = pause_image;
-    phyisical_switch.addEventListener("click", () => {
-      if (phyisical_thread === undefined) {
-        phyisical_switch_image.src = pause_image;
-        phyisical_thread = setInterval(PhyisicalHandler, 1000/60);
+    let physical_switch = document.getElementById("PhysicalSwitch");
+    let physical_switch_image =
+      document.getElementById("PhysicalSwitch-Image");
+    physical_switch_image.src = pause_image;
+    physical_switch.addEventListener("click", () => {
+      if (physical_thread === undefined) {
+        physical_switch_image.src = pause_image;
+        physical_thread = setInterval(PhysicalHandler, 1000/60);
       } else {
-        phyisical_switch_image.src = play_image;
-        clearInterval(phyisical_thread);
-        phyisical_thread = undefined;
+        physical_switch_image.src = play_image;
+        clearInterval(physical_thread);
+        physical_thread = undefined;
       }
     });
     let clear_button = document.getElementById("ClearButton");
     clear_button.addEventListener("click", () => {
-      let instances = phyisical_instances;
-      phyisical_instances = [];
+      let instances = physical_instances;
+      physical_instances = [];
       instances.forEach((instance) => instance.Destroy());
     });
   }
@@ -231,7 +231,7 @@ function Collision(v1, v2, m1, m2) {
     document.addEventListener("mouseup", () => {
       if (instance.size !== undefined && instance.size.IsBigger(minimun_size)) {
         instance.ToReal();
-        phyisical_instances.push(instance);
+        physical_instances.push(instance);
       } else {
         instance.Destroy();
       }
