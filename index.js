@@ -13,6 +13,9 @@ class Vector2D {
   constructor(x, y) {
     this.Set(x, y);
   }
+  Dot(a) {
+    return a.x_*this.x_ + a.y_*this.y_;
+  }
   IsBigger(b) {
     return this.x_ > b.x_ && this.y_ > b.y_;
   }
@@ -33,8 +36,7 @@ class Vector2D {
     return this;
   }
   Multiply(a) {
-    if (typeof(a) === "number") return new Vector2D(a*this.x_, a*this.y_);
-    return a.x_*this.x_ + a.y_*this.y_;
+    return new Vector2D(a*this.x_, a*this.y_);
   }
   Plus(b) {
     return new Vector2D(this).PlusEqual(b);
@@ -168,9 +170,9 @@ function Collision(v1, v2, m1, m2) {
                 direction.Multiply(instance.Radius() + ins.Radius())
               ).Plus(center_fix);
             let v1 =
-              direction.Multiply(instance.physical.speed.Multiply(direction));
-            let v2 = direction.Multiply(ins.physical.speed.Multiply(direction));
-            if (v1.Plus(v2).Multiply(direction) <= 0) continue;
+              direction.Multiply(instance.physical.speed.Dot(direction));
+            let v2 = direction.Multiply(ins.physical.speed.Dot(direction));
+            if (v1.Plus(v2).Dot(direction) <= 0) continue;
             let speeds = Collision(v1, v2, instance.Area(), ins.Area());
             instance.physical.speed.MinusEqual(v1).PlusEqual(speeds[0]);
             ins.physical.speed.MinusEqual(v2).PlusEqual(speeds[1]);
