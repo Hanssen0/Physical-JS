@@ -13,6 +13,9 @@ class Vector2D {
   constructor(x, y) {
     this.Set(x, y);
   }
+  Cross(a) {
+    return a.y_*this.x_ - a.x_*this.y_;
+  }
   Dot(a) {
     return a.x_*this.x_ + a.y_*this.y_;
   }
@@ -130,6 +133,84 @@ class Circle extends Instance {
     SetCss(this._tag_, "box-shadow",  "0 0 10px rgba(20, 20, 20, 0.3), 0 5px 10px rgba(20, 20, 20, 0.3)");
   }
 }
+class Line {
+  constructor() {
+    this._tag_ = CreateTag();
+    this._visible_ = true;
+    SetCss(this._tag_, "transformOrigin", "top left");
+    SetCss(this._tag_, "width", "1px");
+    this._show();
+  }
+  _hide() {
+    SetCss(this._tag_, "background", "");
+  }
+  _show() {
+    SetCss(this._tag_, "background", "#000");
+  }
+  Hide() {
+    this._visible_ = false;
+    this._hide();
+  }
+  Show() {
+    this._visible_ = true;
+    this._show();
+  }
+  To(a, b) {
+    if (!this._visible_) return;
+    this._show();
+    if (b.Length() < 1) {
+      this._hide();
+      return;
+    }
+    SetCss(this._tag_, "height", b.Length() + "px");
+    SetCss(this._tag_, "top", a.y_ + "px");
+    SetCss(this._tag_, "left", a.x_ + "px");
+    SetCss(this._tag_, "transform", "rotate(" + -Math.atan2(b.x_, b.y_) + "rad)");
+  }
+}
+class ArrowLine {
+  constructor() {
+    this._tag_ = CreateTag();
+    this._line_ = new Line();
+    this._visible_ = true;
+    SetCss(this._tag_, "transformOrigin", "top left");
+    this._show();
+  }
+  _hide() {
+    SetCss(this._tag_, "borderTop", "");
+    SetCss(this._tag_, "borderLeft", "");
+  }
+  _show() {
+    SetCss(this._tag_, "borderTop", "#000 1px solid");
+    SetCss(this._tag_, "borderLeft", "#000 1px solid");
+  }
+  Hide() {
+    this._visible_ = false;
+    this._line_.Hide();
+    this._hide();
+  }
+  Show() {
+    this._visible_ = true;
+    this._line_.Show();
+    this._show();
+  }
+  To(a, b) {
+    if (!this._visible_) return;
+    this._show();
+    this._line_.To(a, b);
+    let len = b.Length();
+    if (b.Length() < 1) {
+      this._hide();
+      return;
+    }
+    let pos = a.Plus(b);
+    SetCss(this._tag_, "width", Math.min(len/1.41, 10) + "px");
+    SetCss(this._tag_, "height", Math.min(len/1.41, 10) + "px");
+    SetCss(this._tag_, "top", pos.y_ + "px");
+    SetCss(this._tag_, "left", pos.x_ + "px");
+    SetCss(this._tag_, "transform", "rotate(" + (-Math.PI*3/4 - Math.atan2(b.x_, b.y_)) + "rad)");
+  }
+}
 function Collision(v1, v2, m1, m2) {
   if (m1 === undefined) return [v1, v2.Multiply(-1)];
   if (m2 === undefined) return [v1.Multiply(-1), v2];
@@ -143,6 +224,7 @@ function Collision(v1, v2, m1, m2) {
   function InitPhysical(instance) {
     instance.physical = {};
     instance.physical.speed = new Vector2D(0, 0);
+    instance.physical.speed_line = new ArrowLine();
   }
   let g = 1;
   let physical_thread;
@@ -179,7 +261,10 @@ function Collision(v1, v2, m1, m2) {
           }
         }
       });
-      physical_instances.forEach((instance) => instance.ApplyProperties());
+      physical_instances.forEach((instance) => {
+        instance.ApplyProperties();
+        instance.physical.speed_line.To(instance.position.Plus(instance.Radius()), instance.physical.speed.Multiply(10));
+      });
     };
     physical_thread = setInterval(PhysicalHandler, 1000/60);
     const pause_image = "assets/pause.svg";
