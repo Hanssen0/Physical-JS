@@ -13,10 +13,17 @@
 </body>
 <script src="index.js"></script>
 <style>
+  * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
   body {
     box-sizing: border-box;
     height: 100vh;
     margin: 0;
+    overflow: hidden;
     padding: 1.854em;
     width: 100vw;
   }
@@ -30,8 +37,10 @@
     justify-content: center;
     margin-bottom: 1.146em;
     outline: none;
+    position: relative;
     transition: 0.3s background ease-in-out;
     width: 3em;
+    z-index: 2;
   }
   button:hover {
     background: #fce4ec;
@@ -41,6 +50,67 @@
   }
   div {
     position: absolute;
-    transition: 0.3s box-shadow ease-in-out;
+  }
+  @keyframes ScaleOut {
+    from {
+      transform: translate(-50%, -50%) scale(0);
+    }
+    50% {
+      transform: translate(-50%, -50%);
+    }
+    to {
+      transform: translate(-50%, -50%);
+    }
+  }
+  .physical {
+    border: 5px #000 solid;
+    box-sizing: border-box;
+    transition: 0.2s border ease-out;
+  }
+  .CCR {
+    z-index: 1;
+  }
+  .CC {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    left: 0;
+    background: url("assets/explode.svg");
+    background-position: center center;
+    background-size: contain;
+    background-repeat: no-repeat;
+    height: 4.5em;
+    width: 5.5em;
+    font-size: 2em;
+    animation: 0.5s cubic-bezier(0.325, 0.005, 0.000, 0.995) ScaleOut;
+    transform: translate(-50%, -50%);
+    text-shadow: 1px 1px 0 #000,
+      -1px 1px 0 #000,
+      1px -1px 0 #000,
+      -1px -1px 0 #000,
+      0px 1px 0 #000,
+      0px -1px 0 #000,
+      -1px 0px 0 #000,
+      1px 0px 0 #000,
+      2px 2px 0 #000,
+      -2px 2px 0 #000,
+      2px -2px 0 #000,
+      -2px -2px 0 #000,
+      0px 2px 0 #000,
+      0px -2px 0 #000,
+      -2px 0px 0 #000,
+      2px 0px 0 #000,
+      1px 2px 0 #000,
+      -1px 2px 0 #000,
+      1px -2px 0 #000,
+      -1px -2px 0 #000,
+      2px 1px 0 #000,
+      -2px 1px 0 #000,
+      2px -1px 0 #000,
+      -2px -1px 0 #000;
+    font-weight: bold;
+    color: #ff9800;
   }
 </style>

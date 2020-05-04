@@ -9,6 +9,15 @@ function CreateTag() {
 function SetCss(tag, name, value) {
   tag.style[name] = value;
 }
+function AddClass(tag, class_name) {
+  tag.className += " " + class_name;
+}
+function On(tag, event_name, callback) {
+  tag.addEventListener(event_name, callback);
+}
+function Remove(tag) {
+  tag.remove();
+}
 class Vector2D {
   constructor(x, y) {
     this.Set(x, y);
@@ -130,7 +139,7 @@ class Circle extends Instance {
     return this.size.x_/2;
   }
   ToReal() {
-    SetCss(this._tag_, "box-shadow",  "0 0 10px rgba(20, 20, 20, 0.3), 0 5px 10px rgba(20, 20, 20, 0.3)");
+    AddClass(this._tag_, "physical");
   }
 }
 class Line {
@@ -146,6 +155,9 @@ class Line {
   }
   _show() {
     SetCss(this._tag_, "background", "#000");
+  }
+  Destroy() {
+    Remove(this._tag_);
   }
   Hide() {
     this._visible_ = false;
@@ -184,6 +196,10 @@ class ArrowLine {
     SetCss(this._tag_, "borderTop", "#000 1px solid");
     SetCss(this._tag_, "borderLeft", "#000 1px solid");
   }
+  Destroy() {
+    Remove(this._tag_);
+    this._line_.Destroy();
+  }
   Hide() {
     this._visible_ = false;
     this._line_.Hide();
@@ -211,62 +227,106 @@ class ArrowLine {
     SetCss(this._tag_, "transform", "rotate(" + (-Math.PI*3/4 - Math.atan2(b.x_, b.y_)) + "rad)");
   }
 }
-function Collision(v1, v2, m1, m2) {
-  if (m1 === undefined) return [v1, v2.Multiply(-1)];
-  if (m2 === undefined) return [v1.Multiply(-1), v2];
-  let m1_plus_m2 = m1 + m2;
-  return [
-    v1.Multiply((m1 - m2)/m1_plus_m2).Plus(v2.Multiply(2*m2/m1_plus_m2)),
-    v1.Multiply(2*m1/m1_plus_m2).Plus(v2.Multiply((m2 - m1)/m1_plus_m2))];
+let g = 1;
+class Physical {
+  constructor() {
+    this._instances_ = [];
+  }
+  Add(instance) {
+    instance.ToReal();
+    this._instances_.push({
+      instance: instance,
+      speed: new Vector2D(0, 0),
+      speed_line: new ArrowLine()
+    });
+  }
+  Clear() {
+    this._instances_.forEach((physical) => {
+      physical.speed_line.Destroy();
+      physical.instance.Destroy();
+    });
+    this._instances_ = [];
+  }
+  static Collision(v1, v2, m1, m2) {
+    if (m1 === undefined) return [v1, v2.Multiply(-1)];
+    if (m2 === undefined) return [v1.Multiply(-1), v2];
+    let m1_plus_m2 = m1 + m2;
+    return [
+      v1.Multiply((m1 - m2)/m1_plus_m2).Plus(v2.Multiply(2*m2/m1_plus_m2)),
+      v1.Multiply(2*m1/m1_plus_m2).Plus(v2.Multiply((m2 - m1)/m1_plus_m2))];
+  }
+  Tick() {
+    this._instances_.forEach((physical, index) => {
+      let instance = physical.instance;
+      physical.speed.y_ += g;
+      instance.position.PlusEqual(physical.speed);
+      let execess = instance.position.y_ + instance.size.y_ - window.innerHeight;
+      if (execess >= 0) {
+        physical.speed.y_ -= g*execess/physical.speed.y_;
+        instance.position.y_ -= execess;
+        let v = new Vector2D(0, physical.speed.y_);
+        if (v.y_ > 5) {
+          AniTag(instance.position.x_ + instance.Radius(), window.innerHeight - 60, "BANG!!!");
+        }
+        physical.speed.MinusEqual(v).PlusEqual(this.constructor.Collision(v, undefined, instance.Area(), undefined)[0].Multiply(0.8));
+      }
+      for (let i = 0; i < index; ++i) {
+        let phy = this._instances_[i];
+        let ins = phy.instance;
+        if (instance.IsCollided(ins)) {
+          let center_fix = ins.Radius() - instance.Radius();
+          let distance = ins.position.Minus(instance.position).Plus(center_fix);
+          let direction = distance.ScaleTo(1);
+          instance.position = 
+            ins.position.Minus(
+              direction.Multiply(instance.Radius() + ins.Radius())
+            ).Plus(center_fix);
+          let v1 =
+            direction.Multiply(physical.speed.Dot(direction));
+          let v2 = direction.Multiply(phy.speed.Dot(direction));
+          let relative_speed = v1.Plus(v2).Dot(direction);
+          if (relative_speed <= 0) continue;
+          if (relative_speed > 5) {
+            let center =
+              instance.position
+                .Plus(instance.Radius())
+                .Plus(distance.ScaleTo(instance.Radius()));
+            AniTag(Math.floor(center.x_), Math.floor(center.y_), "BANG!!!");
+          }
+          let speeds = this.constructor.Collision(v1, v2, instance.Area(), ins.Area());
+          physical.speed.MinusEqual(v1).PlusEqual(speeds[0]);
+          phy.speed.MinusEqual(v2).PlusEqual(speeds[1]);
+        }
+      }
+    });
+    this._instances_.forEach((physical) => {
+      physical.instance.ApplyProperties();
+      physical.speed_line.To(physical.instance.position.Plus(physical.instance.Radius()), physical.speed.Multiply(10));
+    });
+  }
+}
+function AniTag(x, y, content) {
+  let rotate = CreateTag();
+  AddClass(rotate, "CCR");
+  SetCss(rotate, "left", x + "px");
+  SetCss(rotate, "top", y + "px");
+  SetCss(rotate, "transform", "rotate(" + (Math.random() - 0.5) + "rad)");
+  let ani = CreateTag();
+  rotate.appendChild(ani);
+  ani.innerHTML = content;
+  AddClass(ani, "CC");
+  ani.removed = false;
+  On(ani, "animationend", () => {
+    Remove(rotate);
+    Remove(ani);
+    ani.removed = true;
+  });
+  return ani;
 }
 {
-  let physical_instances = [];
-  function InitPhysical(instance) {
-    instance.physical = {};
-    instance.physical.speed = new Vector2D(0, 0);
-    instance.physical.speed_line = new ArrowLine();
-  }
-  let g = 1;
-  let physical_thread;
+  let physical = new Physical();
   {
-    let PhysicalHandler = () => {
-      physical_instances.forEach((instance, index) => {
-        if (instance.physical === undefined) InitPhysical(instance);
-        instance.physical.speed.y_ += g;
-        instance.position.PlusEqual(instance.physical.speed);
-        let execess = instance.position.y_ + instance.size.y_ - window.innerHeight;
-        if (execess >= 0) {
-          instance.physical.speed.y_ -= g*execess/instance.physical.speed.y_;
-          instance.position.y_ -= execess;
-          let v = new Vector2D(0, instance.physical.speed.y_);
-          instance.physical.speed.MinusEqual(v).PlusEqual(Collision(v, undefined, instance.Area(), undefined)[0].Multiply(0.8));
-        }
-        for (let i = 0; i < index; ++i) {
-          let ins = physical_instances[i];
-          if (instance.IsCollided(ins)) {
-            let center_fix = ins.Radius() - instance.Radius();
-            let distance = ins.position.Minus(instance.position).Plus(center_fix);
-            let direction = distance.ScaleTo(1);
-            instance.position = 
-              ins.position.Minus(
-                direction.Multiply(instance.Radius() + ins.Radius())
-              ).Plus(center_fix);
-            let v1 =
-              direction.Multiply(instance.physical.speed.Dot(direction));
-            let v2 = direction.Multiply(ins.physical.speed.Dot(direction));
-            if (v1.Plus(v2).Dot(direction) <= 0) continue;
-            let speeds = Collision(v1, v2, instance.Area(), ins.Area());
-            instance.physical.speed.MinusEqual(v1).PlusEqual(speeds[0]);
-            ins.physical.speed.MinusEqual(v2).PlusEqual(speeds[1]);
-          }
-        }
-      });
-      physical_instances.forEach((instance) => {
-        instance.ApplyProperties();
-        instance.physical.speed_line.To(instance.position.Plus(instance.Radius()), instance.physical.speed.Multiply(10));
-      });
-    };
-    physical_thread = setInterval(PhysicalHandler, 1000/60);
+    let physical_thread = setInterval(() => physical.Tick(), 1000/60);
     const pause_image = "assets/pause.svg";
     const play_image = "assets/play_arrow.svg";
     let physical_switch = document.getElementById("PhysicalSwitch");
@@ -276,7 +336,7 @@ function Collision(v1, v2, m1, m2) {
     physical_switch.addEventListener("click", () => {
       if (physical_thread === undefined) {
         physical_switch_image.src = pause_image;
-        physical_thread = setInterval(PhysicalHandler, 1000/60);
+        physical_thread = setInterval(() => physical.Tick(), 1000/60);
       } else {
         physical_switch_image.src = play_image;
         clearInterval(physical_thread);
@@ -284,17 +344,16 @@ function Collision(v1, v2, m1, m2) {
       }
     });
     let clear_button = document.getElementById("ClearButton");
-    clear_button.addEventListener("click", () => {
-      let instances = physical_instances;
-      physical_instances = [];
-      instances.forEach((instance) => instance.Destroy());
-    });
+    clear_button.addEventListener("click", () => physical.Clear());
   }
   {
     let mousedown_position = new Vector2D();
     let instance;
     let minimun_size = new Vector2D(10, 10);
+    let previous;
     document.addEventListener("mousedown", (event) => {
+      AniTag(event.pageX, event.pageY, "CLICK!!!");
+      previous = Date.now();
       if (instance !== undefined) instance.Destroy();
       instance = new Circle();
       instance.color = "rgb(" + 255*Math.random() + ", " +
@@ -304,6 +363,10 @@ function Collision(v1, v2, m1, m2) {
     });
     document.addEventListener("mousemove", (event) => {
       if (instance === undefined) return;
+      if (Date.now() - previous >= 200) {
+        previous = Date.now();
+        AniTag(event.pageX, event.pageY, "Sss...");
+      }
       let size = Math.max(
         Math.abs(event.pageX - mousedown_position.x_),
         Math.abs(event.pageY - mousedown_position.y_));
@@ -316,9 +379,9 @@ function Collision(v1, v2, m1, m2) {
       instance.ApplyProperties();
     });
     document.addEventListener("mouseup", () => {
+      AniTag(event.pageX, event.pageY, "CLICK!!!");
       if (instance.size !== undefined && instance.size.IsBigger(minimun_size)) {
-        instance.ToReal();
-        physical_instances.push(instance);
+        physical.Add(instance);
       } else {
         instance.Destroy();
       }
