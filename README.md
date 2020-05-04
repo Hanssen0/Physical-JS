@@ -10,6 +10,12 @@
 
 大概率不会，交作业就完事了。
 
+# 怎么这么多奇奇怪怪的玩意？
+
+某老师要求一定得有 5000 行源码。
+
+所以什么有趣的玩意都往上缝合。
+
 # 在线 Demo
 
 [Github Pages](https://handsome0hell.github.io/Physical-JS/)
