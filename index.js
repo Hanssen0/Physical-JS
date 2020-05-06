@@ -6,6 +6,9 @@ function CreateTag() {
   document.body.append(div);
   return div;
 }
+function GetTag(selector) {
+  return document.getElementById(selector);
+}
 function SetCss(tag, name, value) {
   tag.style[name] = value;
 }
@@ -267,6 +270,9 @@ class Physical {
         let v = new Vector2D(0, physical.speed.y_);
         if (v.y_ > 5) {
           AniTag(instance.position.x_ + instance.Radius(), window.innerHeight - 60, "BANG!!!");
+          let bang = new Audio("assets/bang.wav");
+          bang.volume = Math.min(v.y_ * instance.Area() / 10000000, 1);
+          bang.play();
         }
         physical.speed.MinusEqual(v).PlusEqual(this.constructor.Collision(v, undefined, instance.Area(), undefined)[0].Multiply(0.8));
       }
@@ -292,6 +298,9 @@ class Physical {
                 .Plus(instance.Radius())
                 .Plus(distance.ScaleTo(instance.Radius()));
             AniTag(Math.floor(center.x_), Math.floor(center.y_), "BANG!!!");
+            let bang = new Audio("assets/bang.wav");
+            bang.volume = Math.min(relative_speed * ins.Area() * instance.Area() / 1000000000000, 1);
+            bang.play();
           }
           let speeds = this.constructor.Collision(v1, v2, instance.Area(), ins.Area());
           physical.speed.MinusEqual(v1).PlusEqual(speeds[0]);
@@ -350,10 +359,15 @@ function AniTag(x, y, content) {
     let mousedown_position = new Vector2D();
     let instance;
     let minimun_size = new Vector2D(10, 10);
+    let start;
     let previous;
+    let click_audio = new Audio("assets/click.wav");
+    let release_audio = new Audio("assets/release.wav");
     document.addEventListener("mousedown", (event) => {
       AniTag(event.pageX, event.pageY, "CLICK!!!");
+      click_audio.play();
       previous = Date.now();
+      start = previous;
       if (instance !== undefined) instance.Destroy();
       instance = new Circle();
       instance.color = "rgb(" + 255*Math.random() + ", " +
@@ -361,7 +375,22 @@ function AniTag(x, y, content) {
                                 255*Math.random() + ")";
       mousedown_position.Set(event.pageX, event.pageY);
     });
+    let backgrounds = [
+      GetTag("Background-1"),
+      GetTag("Background-2"),
+      GetTag("Background-3"),
+      GetTag("Background-4"),
+      GetTag("Background-5"),
+      GetTag("Background-6"),
+      GetTag("Background-7")
+    ];
     document.addEventListener("mousemove", (event) => {
+      let ratio = 0.2;
+      backgrounds.forEach((v) => {
+        SetCss(v, "top", (event.pageY-window.innerHeight/2)*ratio + "px");
+        SetCss(v, "left", (event.pageX-window.innerWidth/2)*ratio + "px");
+        ratio *= 0.618;
+      });
       if (instance === undefined) return;
       if (Date.now() - previous >= 200) {
         previous = Date.now();
@@ -379,7 +408,10 @@ function AniTag(x, y, content) {
       instance.ApplyProperties();
     });
     document.addEventListener("mouseup", () => {
-      AniTag(event.pageX, event.pageY, "CLICK!!!");
+      if (Date.now() - start >= 100) {
+        AniTag(event.pageX, event.pageY, "CLICK!!!");
+        release_audio.play();
+      }
       if (instance.size !== undefined && instance.size.IsBigger(minimun_size)) {
         physical.Add(instance);
       } else {

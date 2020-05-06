@@ -1,0 +1,146 @@
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+body {
+  box-sizing: border-box;
+  height: 100vh;
+  margin: 0;
+  overflow: hidden;
+  padding: 1.854em;
+  width: 100vw;
+}
+button {
+  align-items: center;
+  background: none;
+  border: #f06292 4px solid;
+  border-radius: 50%;
+  display: flex;
+  height: 3em;
+  justify-content: center;
+  margin-bottom: 1.146em;
+  outline: none;
+  position: relative;
+  transition: 0.3s background ease-in-out;
+  width: 3em;
+  z-index: 2;
+}
+button:hover {
+  background: #fce4ec;
+}
+button:active {
+  background: #f8bbd0;
+}
+div {
+  position: absolute;
+}
+@keyframes ScaleOut {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+  }
+  50% {
+    transform: translate(-50%, -50%);
+  }
+  to {
+    transform: translate(-50%, -50%);
+  }
+}
+.physical {
+  border: 5px #000 solid;
+  box-sizing: border-box;
+  transition: 0.2s border ease-out;
+}
+.CCR {
+  z-index: 1;
+}
+.CC {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  background: url("assets/explode.svg");
+  background-position: center center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 4em;
+  width: 4em;
+  font-size: 4em;
+  animation: 0.5s cubic-bezier(0.325, 0.005, 0.000, 0.995) ScaleOut;
+  transform: translate(-50%, -50%);
+  text-shadow: 1px 1px 0 #000,
+    -1px 1px 0 #000,
+    1px -1px 0 #000,
+    -1px -1px 0 #000,
+    0px 1px 0 #000,
+    0px -1px 0 #000,
+    -1px 0px 0 #000,
+    1px 0px 0 #000,
+    2px 2px 0 #000,
+    -2px 2px 0 #000,
+    2px -2px 0 #000,
+    -2px -2px 0 #000,
+    0px 2px 0 #000,
+    0px -2px 0 #000,
+    -2px 0px 0 #000,
+    2px 0px 0 #000,
+    1px 2px 0 #000,
+    -1px 2px 0 #000,
+    1px -2px 0 #000,
+    -1px -2px 0 #000,
+    2px 1px 0 #000,
+    -2px 1px 0 #000,
+    2px -1px 0 #000,
+    -2px -1px 0 #000;
+  font-weight: bold;
+  color: #ff9800;
+}
+#Backgrounds,
+#Backgrounds div {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+#Backgrounds {
+  background: #cfd8dc;
+  height: 100vh;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100vw;
+}
+#Backgrounds div {
+  border: #757575 3px solid;
+  border-radius: 50%;
+  position: relative;
+}
+#Background-1 {
+  background: #f48fb1;
+  height: 80vmax;
+  width: 80vmax;
+}
+#Background-1 div {
+  height: 61.8%;
+  width: 61.8%;
+}
+#Background-2 {
+  background: #9fa8da;
+}
+#Background-3 {
+  background: #80cbc4;
+}
+#Background-4 {
+  background: #ffcc80;
+}
+#Background-5 {
+  background: #ffab91;
+}
+#Background-6 {
+  background: #eee;
+}
+#Background-7 {
+  background: #757575;
+}
