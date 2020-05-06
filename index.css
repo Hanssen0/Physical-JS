@@ -117,7 +117,7 @@ div {
   color: #ff9800;
 }
 #Backgrounds {
-  background: #cfd8dc;
+  background: #5c6bc0;
   height: 100vh;
   left: 0;
   position: absolute;
@@ -125,12 +125,14 @@ div {
   width: 100vw;
 }
 #Backgrounds div {
-  border: #757575 3px solid;
+  border: #424242 3px solid;
   border-radius: 50%;
   position: relative;
+  box-shadow: 0 0 10px rgba(20, 20, 20, 0.3),
+              0 5px 10px rgba(20, 20, 20, 0.3);
 }
 #Background-1 {
-  background: #f48fb1;
+  background: #ef5350;
   height: 80vmax;
   width: 80vmax;
 }
@@ -139,20 +141,24 @@ div {
   width: 61.8%;
 }
 #Background-2 {
-  background: #9fa8da;
+  background: #ff7043;
 }
 #Background-3 {
-  background: #80cbc4;
+  background: #ffca28;
 }
 #Background-4 {
-  background: #ffcc80;
+  background: #7e57c2;
 }
 #Background-5 {
-  background: #ffab91;
+  background: #29b6f6;
 }
 #Background-6 {
-  background: #eee;
+  background: #9ccc65;
 }
 #Background-7 {
-  background: #757575;
+  background: url(assets/eye.svg);
+  background-color: #fff;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: 61.8%;
 }
