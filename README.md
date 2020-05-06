@@ -20,6 +20,8 @@
 
 [Github Pages](https://handsome0hell.github.io/Physical-JS/)
 
+![预览](assets/Demo.png)
+
 ---
 
 使用 GPL v3 协议发布源代码。
