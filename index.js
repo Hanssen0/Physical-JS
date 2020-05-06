@@ -3,6 +3,7 @@ function ReportError(err) {
 }
 class Tag {
   constructor(selector) {
+    this._on_ = [];
     switch (typeof(selector)) {
     case "object":
       this._tag_ = selector;
@@ -42,12 +43,16 @@ class Tag {
   On(name, callback) {
     this._tag_.addEventListener(name, callback);
   }
+  OnRemove(callback) {
+    if (this._on_.remove === undefined) this._on_.remove = new Set();
+    this._on_.remove.add(callback);
+  }
   Remove() {
     this._tag_.remove();
+    if (this._on_.remove !== undefined) this._on_.remove.forEach((v) => v());
   }
   MoveTo(pos) {
-    this.Css("top", pos.y_ + "px");
-    this.Css("left", pos.x_ + "px");
+    this.Css("top", pos.y_ + "px"); this.Css("left", pos.x_ + "px");
   }
 }
 Tag.Document = new Tag(document);
@@ -383,7 +388,7 @@ class Physical {
 }
 class RandomMove {
   constructor() {
-    this._instances_ = [];
+    this._instances_ = new Set();
     this._gap_ = 0;
   }
   static RandomDirection() {
@@ -391,13 +396,15 @@ class RandomMove {
     return new Vector2D(Math.cos(r), Math.sin(r));
   }
   Add(tag, free, max) {
-    this._instances_.push({
+    let instance = {
       pos: new Vector2D(0, 0),
       speed: new Vector2D(0, 0),
       free: free,
       max: max,
       tag: tag
-    });
+    };
+    this._instances_.add(instance);
+    tag.OnRemove(() => this._instances_.delete(instance));
   }
   Tick() {
     this._instances_.forEach((v) => {
