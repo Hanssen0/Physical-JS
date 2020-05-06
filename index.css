@@ -56,13 +56,40 @@ div {
   top: 0;
   width: 100%;
 }
+@keyframes physical-border-1-border {
+  from {
+    border: #ef5350 0 solid;
+  }
+  to {
+    border: #ef5350 6px solid;
+  }
+}
+@keyframes physical-border-2-border {
+  from {
+    border: #fff176 0 solid;
+  }
+  to {
+    border: #fff176 6px solid;
+  }
+}
+@keyframes physical-border-3-border {
+  from {
+    border: #03a9f4 0 solid;
+  }
+  to {
+    border: #03a9f4 6px solid;
+  }
+}
 .physical-border-1 {
+  animation: 0.3s ease-in-out physical-border-1-border;
   border: #ef5350 6px solid;
 }
 .physical-border-2 {
+  animation: 0.3s ease-in-out physical-border-2-border;
   border: #fff176 6px solid;
 }
 .physical-border-3 {
+  animation: 0.3s ease-in-out physical-border-3-border;
   border: #03a9f4 6px solid;
 }
 @keyframes ScaleOut {
@@ -76,13 +103,15 @@ div {
     transform: scale(1);
   }
 }
+.comic-main {
+  z-index: 1;
+}
 .comic-balloon {
   animation: 0.5s cubic-bezier(0.325, 0.005, 0.000, 0.995) ScaleOut;
   background: url("assets/explode.svg");
   background-position: center center;
   background-size: contain;
   background-repeat: no-repeat;
-  z-index: 1;
 }
 .comic-text {
   position: relative;

@@ -128,15 +128,17 @@ class Vector2D {
 }
 class ComicText {
   constructor(content, random_move) {
+    this._rotate_ = new Tag("");
     this._balloon_ = new Tag("");
     this._text_ = new Tag("");
+    this._rotate_.AddClass("comic-main");
     this._balloon_.AddClass("comic-balloon");
     this._text_.AddClass("comic-text");
     this._text_.HTML(content);
     this._random_move_ = random_move;
   }
   Apply(pos) {
-    let rotate = new Tag("");
+    let rotate = this._rotate_.Clone();
     Tag.Body.Append(rotate);
     rotate.MoveTo(pos);
     rotate.Css("transform", "rotate(" + (Math.random() - 0.5) + "rad)");
@@ -521,9 +523,9 @@ class RandomMove {
         isolate.Append(ani);
         isolate.Append(ani1);
         isolate.Append(ani2);
-        rm.Add(ani, 8, 0.2);
-        rm.Add(ani1, 8, 0.2);
-        rm.Add(ani2, 8, 0.2);
+        rm.Add(ani, 6, 0.2);
+        rm.Add(ani1, 6, 0.2);
+        rm.Add(ani2, 6, 0.2);
       } else {
         instance.Destroy();
       }
