@@ -1,26 +1,57 @@
 function ReportError(err) {
   console.log(err);
 }
-function CreateTag() {
-  let div = document.createElement("div");
-  document.body.append(div);
-  return div;
+class Tag {
+  constructor(selector) {
+    switch (typeof(selector)) {
+    case "object":
+      this._tag_ = selector;
+      return;
+    case "string":
+      if (selector[0] === "#") {
+        this._tag_ = document.getElementById(selector.substring(1));
+      } else {
+        this._tag_ = document.createElement(selector === "" ? "div" : selector);
+      }
+      return;
+    default:
+      this._tag_ = document.createElement("div");
+      Tag.Body.Append(new Tag(this._tag_));
+    }
+  }
+  Append(node) {
+    this._tag_.appendChild(node._tag_);
+  }
+  Clone() {
+    return new Tag(this._tag_.cloneNode(true));
+  }
+  HTML(value) {
+    if (value === undefined) return this._tag_.innerHTML;
+    this._tag_.innerHTML = value;
+  }
+  Get(selector) {
+    this._tag_ = document.getElementById(selector);
+  }
+  Css(name, value) {
+    if (value === undefined) return this._tag_.style[name];
+    this._tag_.style[name] = value;
+  }
+  AddClass(class_name) {
+    this._tag_.className += " " + class_name;
+  }
+  On(name, callback) {
+    this._tag_.addEventListener(name, callback);
+  }
+  Remove() {
+    this._tag_.remove();
+  }
+  MoveTo(pos) {
+    this.Css("top", pos.y_ + "px");
+    this.Css("left", pos.x_ + "px");
+  }
 }
-function GetTag(selector) {
-  return document.getElementById(selector);
-}
-function SetCss(tag, name, value) {
-  tag.style[name] = value;
-}
-function AddClass(tag, class_name) {
-  tag.className += " " + class_name;
-}
-function On(tag, event_name, callback) {
-  tag.addEventListener(event_name, callback);
-}
-function Remove(tag) {
-  tag.remove();
-}
+Tag.Document = new Tag(document);
+Tag.Body = new Tag(document.body);
 class Vector2D {
   constructor(x, y) {
     this.Set(x, y);
@@ -51,7 +82,12 @@ class Vector2D {
     return this;
   }
   Multiply(a) {
-    return new Vector2D(a*this.x_, a*this.y_);
+    return new Vector2D(this).MultiplyEqual(a);
+  }
+  MultiplyEqual(a) {
+    this.x_ *= a;
+    this.y_ *= a;
+    return this;
   }
   Plus(b) {
     return new Vector2D(this).PlusEqual(b);
@@ -85,29 +121,61 @@ class Vector2D {
     return Math.pow(this.x_, 2) + Math.pow(this.y_, 2);
   }
 }
+class ComicText {
+  constructor(content, random_move) {
+    this._balloon_ = new Tag("");
+    this._text_ = new Tag("");
+    this._balloon_.AddClass("comic-balloon");
+    this._text_.AddClass("comic-text");
+    this._text_.HTML(content);
+    this._random_move_ = random_move;
+  }
+  Apply(pos) {
+    let rotate = new Tag("");
+    Tag.Body.Append(rotate);
+    rotate.MoveTo(pos);
+    rotate.Css("transform", "rotate(" + (Math.random() - 0.5) + "rad)");
+    let balloon_move = new Tag("");
+    rotate.Append(balloon_move);
+    let balloon = this._balloon_.Clone();
+    balloon_move.Append(balloon);
+    let text = this._text_.Clone();
+    balloon.Append(text);
+    balloon.On("animationend", () => {
+      text.Remove();
+      balloon.Remove();
+      balloon_move.Remove();
+      rotate.Remove();
+    });
+    if (this._random_move_ !== undefined) {
+      this._random_move_.Add(balloon_move, 10, 2);
+      this._random_move_.Add(text, 10, 2);
+    }
+  }
+}
 class Instance {
   constructor() {
     this._color_ = "#f0f";
     this._position_ = new Vector2D();
     this._size_ = new Vector2D();
-    this._tag_ = CreateTag();
+    this._tag_ = new Tag();
   }
   set size(size) {this._size_ = size;}
   get size() {return this._size_;}
   set position(position) {this._position_ = position;}
   get position() {return this._position_;}
   set color(color) {this._color_ = color;}
+  get tag() {return this._tag_;}
   ApplyProperties() {
-    SetCss(this._tag_, "left", this.position.x_ + "px");
-    SetCss(this._tag_, "top", this.position.y_ + "px");
-    SetCss(this._tag_, "width", this.size.x_ + "px");
-    SetCss(this._tag_, "height", this.size.y_ + "px");
-    SetCss(this._tag_, "backgroundColor", this._color_);
+    this._tag_.MoveTo(this.position);
+    this._tag_.Css("width", this.size.x_ + "px");
+    this._tag_.Css("height", this.size.y_ + "px");
+    this._tag_.Css("backgroundColor", this._color_);
   }
   Area() {
     ReportError("The subclass doesn't implement Instance.Area() method.");
   }
-  Destroy() {this._tag_.remove();}
+  Destroy() {this._tag_.Remove();}
   IsCollided() {
     ReportError("The subclass doesn't implement Instance.IsCollided() method.");
   }
@@ -126,7 +194,7 @@ class Circle extends Instance {
   get size() {return super.size;}
   ApplyProperties() {
     super.ApplyProperties();
-    SetCss(this._tag_, "borderRadius", "50%");
+    this._tag_.Css("borderRadius", "50%");
   }
   Area() {return Math.PI*Math.pow(this.size.x_, 2);}
   IsCollided(instance) {
@@ -142,25 +210,25 @@ class Circle extends Instance {
     return this.size.x_/2;
   }
   ToReal() {
-    AddClass(this._tag_, "physical");
+    this._tag_.AddClass("physical");
   }
 }
 class Line {
   constructor() {
-    this._tag_ = CreateTag();
+    this._tag_ = new Tag();
     this._visible_ = true;
-    SetCss(this._tag_, "transformOrigin", "top left");
-    SetCss(this._tag_, "width", "1px");
+    this._tag_.Css("transformOrigin", "top left");
+    this._tag_.Css("width", "1px");
     this._show();
   }
   _hide() {
-    SetCss(this._tag_, "background", "");
+    this._tag_.Css("background", "");
   }
   _show() {
-    SetCss(this._tag_, "background", "#000");
+    this._tag_.Css("background", "#000");
   }
   Destroy() {
-    Remove(this._tag_);
+    this._tag_.Remove();
   }
   Hide() {
     this._visible_ = false;
@@ -177,30 +245,29 @@ class Line {
       this._hide();
       return;
     }
-    SetCss(this._tag_, "height", b.Length() + "px");
-    SetCss(this._tag_, "top", a.y_ + "px");
-    SetCss(this._tag_, "left", a.x_ + "px");
-    SetCss(this._tag_, "transform", "rotate(" + -Math.atan2(b.x_, b.y_) + "rad)");
+    this._tag_.Css("height", b.Length() + "px");
+    this._tag_.MoveTo(a);
+    this._tag_.Css("transform", "rotate(" + -Math.atan2(b.x_, b.y_) + "rad)");
   }
 }
 class ArrowLine {
   constructor() {
-    this._tag_ = CreateTag();
+    this._tag_ = new Tag();
     this._line_ = new Line();
     this._visible_ = true;
-    SetCss(this._tag_, "transformOrigin", "top left");
+    this._tag_.Css("transformOrigin", "top left");
     this._show();
   }
   _hide() {
-    SetCss(this._tag_, "borderTop", "");
-    SetCss(this._tag_, "borderLeft", "");
+    this._tag_.Css("borderTop", "");
+    this._tag_.Css("borderLeft", "");
   }
   _show() {
-    SetCss(this._tag_, "borderTop", "#000 1px solid");
-    SetCss(this._tag_, "borderLeft", "#000 1px solid");
+    this._tag_.Css("borderTop", "#000 1px solid");
+    this._tag_.Css("borderLeft", "#000 1px solid");
   }
   Destroy() {
-    Remove(this._tag_);
+    this._tag_.Remove();
     this._line_.Destroy();
   }
   Hide() {
@@ -223,17 +290,16 @@ class ArrowLine {
       return;
     }
     let pos = a.Plus(b);
-    SetCss(this._tag_, "width", Math.min(len/1.41, 10) + "px");
-    SetCss(this._tag_, "height", Math.min(len/1.41, 10) + "px");
-    SetCss(this._tag_, "top", pos.y_ + "px");
-    SetCss(this._tag_, "left", pos.x_ + "px");
-    SetCss(this._tag_, "transform", "rotate(" + (-Math.PI*3/4 - Math.atan2(b.x_, b.y_)) + "rad)");
+    this._tag_.Css("width", Math.min(len/1.41, 10) + "px");
+    this._tag_.Css("height", Math.min(len/1.41, 10) + "px");
+    this._tag_.MoveTo(pos);
+    this._tag_.Css("transform", "rotate(" + (-Math.PI*3/4 - Math.atan2(b.x_, b.y_)) + "rad)");
   }
 }
-let g = 1;
 class Physical {
-  constructor() {
+  constructor(collision) {
     this._instances_ = [];
+    this._collision_ = collision;
   }
   Add(instance) {
     instance.ToReal();
@@ -250,6 +316,7 @@ class Physical {
     });
     this._instances_ = [];
   }
+  static G() {return 1;}
   static Collision(v1, v2, m1, m2) {
     if (m1 === undefined) return [v1, v2.Multiply(-1)];
     if (m2 === undefined) return [v1.Multiply(-1), v2];
@@ -261,15 +328,15 @@ class Physical {
   Tick() {
     this._instances_.forEach((physical, index) => {
       let instance = physical.instance;
-      physical.speed.y_ += g;
+      physical.speed.y_ += this.constructor.G();
       instance.position.PlusEqual(physical.speed);
       let execess = instance.position.y_ + instance.size.y_ - window.innerHeight;
       if (execess >= 0) {
-        physical.speed.y_ -= g*execess/physical.speed.y_;
+        physical.speed.y_ -= this.constructor.G()*execess/physical.speed.y_;
         instance.position.y_ -= execess;
         let v = new Vector2D(0, physical.speed.y_);
         if (v.y_ > 5) {
-          AniTag(instance.position.x_ + instance.Radius(), window.innerHeight - 60, "BANG!!!");
+          this._collision_.Apply(new Vector2D(instance.position.x_ + instance.Radius(), window.innerHeight - 60));
           let bang = new Audio("assets/bang.wav");
           bang.volume = Math.min(v.y_ * instance.Area() / 10000000, 1);
           bang.play();
@@ -297,7 +364,7 @@ class Physical {
               instance.position
                 .Plus(instance.Radius())
                 .Plus(distance.ScaleTo(instance.Radius()));
-            AniTag(Math.floor(center.x_), Math.floor(center.y_), "BANG!!!");
+            this._collision_.Apply(center);
             let bang = new Audio("assets/bang.wav");
             bang.volume = Math.min(relative_speed * ins.Area() * instance.Area() / 1000000000000, 1);
             bang.play();
@@ -314,28 +381,44 @@ class Physical {
     });
   }
 }
-function AniTag(x, y, content) {
-  let rotate = CreateTag();
-  AddClass(rotate, "CCR");
-  SetCss(rotate, "left", x + "px");
-  SetCss(rotate, "top", y + "px");
-  SetCss(rotate, "transform", "rotate(" + (Math.random() - 0.5) + "rad)");
-  let ani = CreateTag();
-  rotate.appendChild(ani);
-  ani.innerHTML = content;
-  AddClass(ani, "CC");
-  ani.removed = false;
-  On(ani, "animationend", () => {
-    Remove(rotate);
-    Remove(ani);
-    ani.removed = true;
-  });
-  return ani;
+class RandomMove {
+  constructor() {
+    this._instances_ = [];
+    this._gap_ = 0;
+  }
+  static RandomDirection() {
+    let r = 2*Math.PI*Math.random();
+    return new Vector2D(Math.cos(r), Math.sin(r));
+  }
+  Add(tag, free, max) {
+    this._instances_.push({
+      pos: new Vector2D(0, 0),
+      speed: new Vector2D(0, 0),
+      free: free,
+      max: max,
+      tag: tag
+    });
+  }
+  Tick() {
+    this._instances_.forEach((v) => {
+      v.tag.Css("transform", "translate(" + v.pos.x_ + "px, " + v.pos.y_ + "px)");
+      let a = this.constructor.RandomDirection().Multiply(v.max*Math.random());
+      if (v.pos.Length() > v.free) a.PlusEqual(v.pos.Multiply(-0.5*v.max));
+      v.speed.PlusEqual(a);
+      if (v.speed.Length() > v.max) v.speed = v.speed.ScaleTo(v.max);
+      v.pos.PlusEqual(v.speed);
+    });
+  }
 }
 {
-  let physical = new Physical();
+  let rm = new RandomMove();
+  let collision_comic = new ComicText("BANG!!!", rm);
+  let physical = new Physical(collision_comic);
   {
-    let physical_thread = setInterval(() => physical.Tick(), 1000/60);
+    let physical_thread = setInterval(() => {
+      physical.Tick();
+      rm.Tick();
+    }, 1000/60);
     const pause_image = "assets/pause.svg";
     const play_image = "assets/play_arrow.svg";
     let physical_switch = document.getElementById("PhysicalSwitch");
@@ -363,8 +446,9 @@ function AniTag(x, y, content) {
     let previous;
     let click_audio = new Audio("assets/click.wav");
     let release_audio = new Audio("assets/release.wav");
-    document.addEventListener("mousedown", (event) => {
-      AniTag(event.pageX, event.pageY, "CLICK!!!");
+    let down_comic = new ComicText("CLICK!!!", rm);
+    Tag.Document.On("mousedown", (event) => {
+      down_comic.Apply(new Vector2D(event.pageX, event.pageY));
       click_audio.play();
       previous = Date.now();
       start = previous;
@@ -376,25 +460,28 @@ function AniTag(x, y, content) {
       mousedown_position.Set(event.pageX, event.pageY);
     });
     let backgrounds = [
-      GetTag("Background-1"),
-      GetTag("Background-2"),
-      GetTag("Background-3"),
-      GetTag("Background-4"),
-      GetTag("Background-5"),
-      GetTag("Background-6"),
-      GetTag("Background-7")
+      new Tag("#Background-1"),
+      new Tag("#Background-2"),
+      new Tag("#Background-3"),
+      new Tag("#Background-4"),
+      new Tag("#Background-5"),
+      new Tag("#Background-6"),
+      new Tag("#Background-7")
     ];
-    document.addEventListener("mousemove", (event) => {
+    backgrounds.forEach((v) => rm.Add(v, 3, 0.1));
+    Tag.Document.On("mousemove", (event) => {
       let ratio = 0.2;
       backgrounds.forEach((v) => {
-        SetCss(v, "top", (event.pageY-window.innerHeight/2)*ratio + "px");
-        SetCss(v, "left", (event.pageX-window.innerWidth/2)*ratio + "px");
+        v.MoveTo(new Vector2D(event.pageX, event.pageY).Minus(new Vector2D(window.innerWidth/2, window.innerHeight/2)).Multiply(ratio));
         ratio *= 0.618;
       });
+    });
+    let move_comic = new ComicText("Sss...", rm);
+    Tag.Document.On("mousemove", (event) => {
       if (instance === undefined) return;
       if (Date.now() - previous >= 200) {
         previous = Date.now();
-        AniTag(event.pageX, event.pageY, "Sss...");
+        move_comic.Apply(new Vector2D(event.pageX, event.pageY));
       }
       let size = Math.max(
         Math.abs(event.pageX - mousedown_position.x_),
@@ -407,13 +494,29 @@ function AniTag(x, y, content) {
       instance.position = position;
       instance.ApplyProperties();
     });
-    document.addEventListener("mouseup", () => {
+    let up_comic = new ComicText("CLICK!!!", rm);
+    Tag.Document.On("mouseup", () => {
       if (Date.now() - start >= 100) {
-        AniTag(event.pageX, event.pageY, "CLICK!!!");
         release_audio.play();
+        up_comic.Apply(new Vector2D(event.pageX, event.pageY));
       }
       if (instance.size !== undefined && instance.size.IsBigger(minimun_size)) {
         physical.Add(instance);
+        let isolate = new Tag("");
+        let ani = new Tag("");
+        let ani1 = new Tag("");
+        let ani2 = new Tag("");
+        isolate.AddClass("isolation");
+        ani.AddClass("physical-border-1");
+        ani1.AddClass("physical-border-2");
+        ani2.AddClass("physical-border-3");
+        instance.tag.Append(isolate);
+        isolate.Append(ani);
+        isolate.Append(ani1);
+        isolate.Append(ani2);
+        rm.Add(ani, 8, 0.2);
+        rm.Add(ani1, 8, 0.2);
+        rm.Add(ani2, 8, 0.2);
       } else {
         instance.Destroy();
       }

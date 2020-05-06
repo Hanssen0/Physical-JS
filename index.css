@@ -34,43 +34,61 @@ button:active {
   background: #f8bbd0;
 }
 div {
+  align-items: center;
+  display: flex;
+  justify-content: center;
   position: absolute;
+}
+.isolation {
+  height: 100%;
+  isolation: isolate;
+  width: 100%;
+}
+.physical-border-1,
+.physical-border-2,
+.physical-border-3 {
+  mix-blend-mode: lighten;
+  border-radius: 50%;
+  box-sizing: border-box;
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+.physical-border-1 {
+  border: #ef5350 6px solid;
+}
+.physical-border-2 {
+  border: #fff176 6px solid;
+}
+.physical-border-3 {
+  border: #03a9f4 6px solid;
 }
 @keyframes ScaleOut {
   from {
-    transform: translate(-50%, -50%) scale(0);
+    transform: scale(0);
   }
   50% {
-    transform: translate(-50%, -50%);
+    transform: scale(1);
   }
   to {
-    transform: translate(-50%, -50%);
+    transform: scale(1);
   }
 }
-.physical {
-  border: 5px #000 solid;
-  box-sizing: border-box;
-  transition: 0.2s border ease-out;
-}
-.CCR {
-  z-index: 1;
-}
-.CC {
-  position: absolute;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  top: 0;
-  left: 0;
+.comic-balloon {
+  animation: 0.5s cubic-bezier(0.325, 0.005, 0.000, 0.995) ScaleOut;
   background: url("assets/explode.svg");
   background-position: center center;
   background-size: contain;
   background-repeat: no-repeat;
+  z-index: 1;
+}
+.comic-text {
+  position: relative;
   height: 4em;
   width: 4em;
   font-size: 4em;
-  animation: 0.5s cubic-bezier(0.325, 0.005, 0.000, 0.995) ScaleOut;
-  transform: translate(-50%, -50%);
   text-shadow: 1px 1px 0 #000,
     -1px 1px 0 #000,
     1px -1px 0 #000,
@@ -97,12 +115,6 @@ div {
     -2px -1px 0 #000;
   font-weight: bold;
   color: #ff9800;
-}
-#Backgrounds,
-#Backgrounds div {
-  align-items: center;
-  display: flex;
-  justify-content: center;
 }
 #Backgrounds {
   background: #cfd8dc;
