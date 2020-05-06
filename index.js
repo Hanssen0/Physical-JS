@@ -1,3 +1,7 @@
+let kTexts = [
+  ["CLICK!!!", "Sss...", "CLICK!!!", "Boom!!!"],
+  ["哒!!!", "咻...", "哒!!!", "砰!!!"]
+];
 function ReportError(err) {
   console.log(err);
 }
@@ -159,6 +163,7 @@ class ComicText {
       this._random_move_.Add(text, 10, 2);
     }
   }
+  Set(content) {this._text_.HTML(content);}
 }
 class Instance {
   constructor() {
@@ -419,9 +424,14 @@ class RandomMove {
     });
   }
 }
+let language_callbacks = new Set();
+function OnLanguageChange(callback) {
+  language_callbacks.add(callback);
+}
 {
   let rm = new RandomMove();
   let collision_comic = new ComicText("BANG!!!", rm);
+  OnLanguageChange((stat) => collision_comic.Set(kTexts[stat][3]));
   let physical = new Physical(collision_comic);
   {
     let physical_thread = setInterval(() => {
@@ -446,6 +456,12 @@ class RandomMove {
     });
     let clear_button = document.getElementById("ClearButton");
     clear_button.addEventListener("click", () => physical.Clear());
+    let language = 0;
+    let language_button = new Tag("#LanguageButton");
+    language_button.On("click", () => {
+      language = language === 0 ? 1 : 0;
+      language_callbacks.forEach((v) => v(language));
+    });
   }
   {
     let mousedown_position = new Vector2D();
@@ -456,6 +472,7 @@ class RandomMove {
     let click_audio = new Audio("assets/click.wav");
     let release_audio = new Audio("assets/release.wav");
     let down_comic = new ComicText("CLICK!!!", rm);
+    OnLanguageChange((stat) => down_comic.Set(kTexts[stat][0]));
     Tag.Document.On("mousedown", (event) => {
       down_comic.Apply(new Vector2D(event.pageX, event.pageY));
       click_audio.play();
@@ -486,6 +503,7 @@ class RandomMove {
       });
     });
     let move_comic = new ComicText("Sss...", rm);
+    OnLanguageChange((stat) => move_comic.Set(kTexts[stat][1]));
     Tag.Document.On("mousemove", (event) => {
       if (instance === undefined) return;
       if (Date.now() - previous >= 200) {
@@ -504,6 +522,7 @@ class RandomMove {
       instance.ApplyProperties();
     });
     let up_comic = new ComicText("CLICK!!!", rm);
+    OnLanguageChange((stat) => up_comic.Set(kTexts[stat][2]));
     Tag.Document.On("mouseup", () => {
       if (Date.now() - start >= 100) {
         release_audio.play();
