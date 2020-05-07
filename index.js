@@ -545,6 +545,12 @@ function OnLanguageChange(callback) {
         rm.Add(ani, 6, 0.2);
         rm.Add(ani1, 6, 0.2);
         rm.Add(ani2, 6, 0.2);
+        instance.tag.OnRemove(() => {
+          ani.Remove();
+          ani1.Remove();
+          ani2.Remove();
+          isolate.Remove();
+        });
       } else {
         instance.Destroy();
       }
