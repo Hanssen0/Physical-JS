@@ -86,7 +86,7 @@ div {
 }
 .physical-border-2 {
   animation: 0.3s ease-in-out physical-border-2-border;
-  border: #fff176 6px solid;
+  border: #00e676 6px solid;
 }
 .physical-border-3 {
   animation: 0.3s ease-in-out physical-border-3-border;
