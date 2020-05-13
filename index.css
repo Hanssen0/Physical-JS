@@ -5,6 +5,7 @@
   user-select: none;
 }
 body {
+  background: #5c6bc0;
   box-sizing: border-box;
   height: 100vh;
   margin: 0;
@@ -25,7 +26,7 @@ button {
   position: relative;
   transition: 0.3s background ease-in-out;
   width: 3em;
-  z-index: 2;
+  z-index: 3;
 }
 button:hover {
   background: #fce4ec;
@@ -146,17 +147,19 @@ div {
   color: #ff9800;
 }
 #Backgrounds {
-  background: #5c6bc0;
-  height: 100vh;
-  left: 0;
+  left: 50%;
   position: absolute;
-  top: 0;
-  width: 100vw;
+  top: 50%;
 }
-#Backgrounds div {
+#Background-1,
+#Background-2,
+#Background-3,
+#Background-4,
+#Background-5,
+#Background-6,
+#Background-7 {
   border: #424242 3px solid;
   border-radius: 50%;
-  position: relative;
   box-shadow: 0 0 10px rgba(20, 20, 20, 0.3),
               0 5px 10px rgba(20, 20, 20, 0.3);
 }
@@ -165,24 +168,30 @@ div {
   height: 80vmax;
   width: 80vmax;
 }
-#Background-1 div {
-  height: 61.8%;
-  width: 61.8%;
-}
 #Background-2 {
   background: #ff7043;
+  height: 49.44vmax;
+  width: 49.44vmax;
 }
 #Background-3 {
   background: #ffca28;
+  height: 30.55vmax;
+  width: 30.55vmax;
 }
 #Background-4 {
   background: #7e57c2;
+  height: 18.88vmax;
+  width: 18.88vmax;
 }
 #Background-5 {
   background: #29b6f6;
+  height: 11.67vmax;
+  width: 11.67vmax;
 }
 #Background-6 {
   background: #9ccc65;
+  height: 7.21vmax;
+  width: 7.21vmax;
 }
 #Background-7 {
   background: url(assets/eye.svg);
@@ -190,4 +199,9 @@ div {
   background-position: center center;
   background-repeat: no-repeat;
   background-size: 61.8%;
+  height: 4.46vmax;
+  width: 4.46vmax;
+}
+.particle {
+  z-index: 2;
 }
