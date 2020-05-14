@@ -5,6 +5,9 @@ let kTexts = [
 function ReportError(err) {
   console.log(err);
 }
+function GetClientVector(event) {
+  return new Vector2D(event.clientX, event.clientY);
+}
 class Tag {
   constructor(selector) {
     this._on_ = [];
@@ -45,26 +48,34 @@ class Tag {
     if (value === undefined) return this._tag_[name];
     this._tag_[name] = value;
   }
+  SetClass(class_name) {
+    this._tag_.className = class_name;
+  }
   AddClass(class_name) {
     this._tag_.className += " " + class_name;
   }
   On(name, callback) {
     this._tag_.addEventListener(name, callback);
   }
+  OnClick(callback) {
+    this.On(
+      "click",
+      (event) => callback(GetClientVector(event), event));
+  }
   OnMouseDown(callback) {
     this.On(
       "mousedown",
-      (event) => callback(new Vector2D(event.pageX, event.pageY), event));
+      (event) => callback(GetClientVector(event), event));
   }
   OnMouseMove(callback) {
     this.On(
       "mousemove",
-      (event) => callback(new Vector2D(event.pageX, event.pageY), event));
+      (event) => callback(GetClientVector(event), event));
   }
   OnMouseUp(callback) {
     this.On(
       "mouseup",
-      (event) => callback(new Vector2D(event.pageX, event.pageY), event));
+      (event) => callback(GetClientVector(event), event));
   }
   OnRemove(callback) {
     if (this._on_.remove === undefined) this._on_.remove = new Set();
@@ -98,6 +109,17 @@ class Tag {
     this.Css("animation", "none");
     this._tag_.offsetHeight;
     this.Css("animation", null);
+  }
+  PositionTo(father) {
+    if (father === undefined) {
+      let bound = this._tag_.getBoundingClientRect();
+      return new Vector2D(bound.left, bound.top);
+    }
+    return this.PositionTo().MinusEqual(father.PositionTo());
+  }
+  ClientSize() {
+    let bound = this._tag_.getBoundingClientRect();
+    return new Vector2D(bound.right - bound.left, bound.bottom - bound.top);
   }
 }
 Tag.Document = new Tag(document);
@@ -176,6 +198,24 @@ class Vector2D {
   LoadData(data) {
     this.Set(data[0], data[1]);
   }
+}
+function InsidePolygon(point, polygon) {
+  if (polygon.length < 3) return false;
+  let count = 0;
+  let x = point.x_;
+  let y = point.y_;
+  for (let i = 0; i < polygon.length; ++i) {
+    let now = polygon[i];
+    let pre = polygon[(i === 0 ? polygon.length : i) - 1];
+    if (pre.x_ > x && now.x_ > x) {
+      if (((pre.y_ - y)*(now.y_ - y)) < 0) ++count;
+    } else if ((pre.x_ - x)*(now.x_ - x) < 0) {
+      if ((pre.x_ - y)*(now.y_ - y) < 0) {
+        if (pre.x_ + (y - pre.y_)*(now.x_- pre.x_)/(now.y_ - pre.y_) > x) ++count;
+      }
+    }
+  }
+  return count%2 !== 0;
 }
 function RandomDirection() {
   let r = 2*Math.PI*Math.random();
@@ -537,6 +577,51 @@ class RandomMove {
     });
   }
 }
+class SaveHexagon {
+  constructor(tag) {
+    this._tag_ = tag;
+  }
+  Active(content) {
+    this._tag_.AddClass("saves-list-hexagon-active");
+    this._tag_.HTML(content);
+  }
+  Deactive() {
+    this._tag_.SetClass("saves-list-hexagon");
+  }
+  IsInside(mouse) {
+    let size = this._tag_.ClientSize();
+    let position = mouse.MinusEqual(this._tag_.PositionTo(Tag.Body));
+    let points = [];
+    let center = size.Multiply(0.5);
+    for (let i = 0; i < 6; ++i) {
+      let r = i*Math.PI/3;
+      let point = new Vector2D(Math.cos(r), Math.sin(r)).MultiplyEqual(size.x_/2);
+      points.push(point.PlusEqual(center));
+    }
+    return InsidePolygon(position, points);
+  }
+}
+class HexagonsList {
+  constructor(start_row, end_row, start_column, end_column) {
+    this._area_ = [start_row, end_row, start_column, end_column];
+    this._current_ = new Vector2D(start_row, start_column);
+  }
+  Add(content, click) {
+    let rows = document.getElementsByClassName("hexagon-row");
+    let items = rows[this._current_.x_].getElementsByClassName("saves-list-hexagon");
+    let item = new SaveHexagon(new Tag(items[this._current_.y_]));
+    if (++this._current_.y_ > this._area_[3]) {
+      this._current_.y_ = this._area_[2];
+      if (++this._current_.x_ > this._area_[1]) {
+        this._current_.x_ = this._area_[0];
+      }
+    }
+    Tag.Body.OnClick((pos) => {
+      if (item.IsInside(pos)) click();
+    });
+    item.Active(content);
+  }
+}
 let language_callbacks = new Set();
 function OnLanguageChange(callback) {
   language_callbacks.add(callback);
@@ -602,17 +687,22 @@ function OnLanguageChange(callback) {
       language_callbacks.forEach((v) => v(language));
     });
     let save_button = new Tag("#SaveButton");
-    let saves_list = new Tag("#SavesList");
-    let data;
+    let hl = new HexagonsList(2, 4, 2, 7);
+    let number = 0;
     save_button.On("click", () => {
-      if (data === undefined) {
-        data = physical.GetData();
-        saves_list.Show();
-      } else {
-        physical.LoadData(data);
-        data = undefined;
+      let data = physical.GetData();
+      hl.Add(number++, () => physical.LoadData(data));
+    });
+    let menu_button = new Tag("#MenuButton");
+    let saves_list = new Tag("#SavesList");
+    let has_shown = false;
+    menu_button.OnClick(() => {
+      if (has_shown) {
         saves_list.Hide();
+      } else {
+        saves_list.Show();
       }
+      has_shown = !has_shown;
     });
   }
   {
@@ -625,7 +715,7 @@ function OnLanguageChange(callback) {
     let release_audio = new Audio("assets/release.wav");
     let down_comic = new ComicText("CLICK!!!", rm);
     OnLanguageChange((stat) => down_comic.Set(kTexts[stat][0]));
-    Tag.Document.OnMouseDown((pos) => {
+    Tag.Body.OnMouseDown((pos) => {
       down_comic.Apply(pos);
       click_audio.play();
       previous = Date.now();
@@ -647,7 +737,7 @@ function OnLanguageChange(callback) {
       new Tag("#Background-7-Move")
     ];
     backgrounds.forEach((v) => rm.Add(v, 6, 0.2));
-    Tag.Document.OnMouseMove((pos) => {
+    Tag.Body.OnMouseMove((pos) => {
       let ratio = 0.2;
       backgrounds.forEach((v) => {
         v.MoveTo(pos.Minus(new Vector2D(window.innerWidth/2, window.innerHeight/2)).Multiply(ratio));
@@ -656,7 +746,7 @@ function OnLanguageChange(callback) {
     });
     let move_comic = new ComicText("Sss...", rm);
     OnLanguageChange((stat) => move_comic.Set(kTexts[stat][1]));
-    Tag.Document.OnMouseMove((pos) => {
+    Tag.Body.OnMouseMove((pos) => {
       if (instance === undefined) return;
       if (Date.now() - previous >= 200) {
         previous = Date.now();
@@ -675,8 +765,8 @@ function OnLanguageChange(callback) {
     });
     let up_comic = new ComicText("CLICK!!!", rm);
     OnLanguageChange((stat) => up_comic.Set(kTexts[stat][2]));
-    Tag.Document.OnMouseUp((pos) => {
-      if (Date.now() - start >= 100) {
+    Tag.Body.OnMouseUp((pos) => {
+      if (Date.now() - start >= 250) {
         release_audio.play();
         up_comic.Apply(pos);
       }

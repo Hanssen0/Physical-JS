@@ -5,6 +5,7 @@
   user-select: none;
 }
 body {
+  position: relative;
   background: #5c6bc0;
   box-sizing: border-box;
   height: 100vh;
@@ -26,7 +27,7 @@ button {
   position: relative;
   transition: 0.3s background ease-in-out;
   width: 3em;
-  z-index: 3;
+  z-index: 1;
 }
 button:hover {
   background: #fce4ec;
@@ -106,6 +107,7 @@ div {
 }
 .comic-main {
   z-index: 1;
+  pointer-events: none;
 }
 .comic-balloon {
   animation: 0.5s cubic-bezier(0.325, 0.005, 0.000, 0.995) ScaleOut;
@@ -202,11 +204,6 @@ div {
   height: 4.46vmax;
   width: 4.46vmax;
 }
-.particle {
-  z-index: 2;
-}
-#OperatingUI {
-}
 .center-inside {
   display: flex;
   justify-content: center;
@@ -225,25 +222,26 @@ div {
   top: 0;
 }
 .saves-list-hexagon {
-  background: url(assets/saves-list-hexagon.svg);
-}
-.saves-list-hexagon-empty {
-  background: url(assets/saves-list-hexagon-empty.svg);
-}
-.saves-list-hexagon,
-.saves-list-hexagon-empty {
   position: relative;
   color: #000;
   font-weight: bold;
   font-size: 6.18vw;
   width: 14.27209865vw; /* 2*h/sqrt(3) */
   height: 12.36vw;
+}
+.saves-list-hexagon {
+  background: url(assets/saves-list-hexagon-empty.svg);
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
 }
-.saves-list-hexagon:nth-child(2n),
-.saves-list-hexagon-empty:nth-child(2n) {
+.saves-list-hexagon-active {
+  background: url(assets/saves-list-hexagon.svg);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+.saves-list-hexagon:nth-child(2n) {
   margin: 0 -3.568024663vw; /* h/sqrt(3)/2 */
   margin-top: 6.18vw;
 }
@@ -256,6 +254,6 @@ div {
 .hexagon-row:not(:first-child) {
   margin-top: -6.18vw;
 }
-.removed {
+.hidden {
   display: none;
 }
