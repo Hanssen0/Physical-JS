@@ -79,6 +79,7 @@ class Tag {
   }
   Hide() {
     this._display_ = this.Css("display");
+    if (this._display_ === "none") this._display_ = "block";
     this.Css("display", "none");
     if (this._on_.hide !== undefined) {
       this._on_.hide.forEach((v) => v());
@@ -86,7 +87,8 @@ class Tag {
     }
   }
   Show() {
-    if (this._display_ !== undefined) this.Css("display", this._display_);
+    if (this._display_ === undefined) this._display_ = "block";
+    this.Css("display", this._display_);
   }
   OnHide(callback) {
     if (this._on_.hide === undefined) this._on_.hide = new Set();
@@ -600,13 +602,16 @@ function OnLanguageChange(callback) {
       language_callbacks.forEach((v) => v(language));
     });
     let save_button = new Tag("#SaveButton");
+    let saves_list = new Tag("#SavesList");
     let data;
     save_button.On("click", () => {
       if (data === undefined) {
         data = physical.GetData();
+        saves_list.Show();
       } else {
         physical.LoadData(data);
         data = undefined;
+        saves_list.Hide();
       }
     });
   }

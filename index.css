@@ -205,3 +205,57 @@ div {
 .particle {
   z-index: 2;
 }
+#OperatingUI {
+}
+.center-inside {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.column-inside {
+  flex-direction: column;
+}
+.screen-size {
+  height: 100vh;
+  width: 100vw;
+}
+.absolute-top-left {
+  left: 0;
+  position: absolute;
+  top: 0;
+}
+.saves-list-hexagon {
+  background: url(assets/saves-list-hexagon.svg);
+}
+.saves-list-hexagon-empty {
+  background: url(assets/saves-list-hexagon-empty.svg);
+}
+.saves-list-hexagon,
+.saves-list-hexagon-empty {
+  position: relative;
+  color: #000;
+  font-weight: bold;
+  font-size: 6.18vw;
+  width: 14.27209865vw; /* 2*h/sqrt(3) */
+  height: 12.36vw;
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+}
+.saves-list-hexagon:nth-child(2n),
+.saves-list-hexagon-empty:nth-child(2n) {
+  margin: 0 -3.568024663vw; /* h/sqrt(3)/2 */
+  margin-top: 6.18vw;
+}
+.hexagon-row {
+  align-items: flex-start;
+  display: flex;
+  justify-content: flex-start;
+  position: relative;
+}
+.hexagon-row:not(:first-child) {
+  margin-top: -6.18vw;
+}
+.removed {
+  display: none;
+}
