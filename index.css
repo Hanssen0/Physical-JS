@@ -221,16 +221,18 @@ div {
   position: absolute;
   top: 0;
 }
-.saves-list-hexagon {
+.saves-list-hexagon,
+.saves-list-hexagon-invalid {
   position: relative;
-  color: #000;
+  color: #372021;
   font-weight: bold;
   font-size: 6.18vw;
   width: 14.27209865vw; /* 2*h/sqrt(3) */
   height: 12.36vw;
 }
-.saves-list-hexagon {
-  background: url(assets/saves-list-hexagon-empty.svg);
+.saves-list-hexagon,
+.saves-list-hexagon-invalid {
+  /*background: url(assets/saves-list-hexagon-empty.svg);*/
   background-repeat: no-repeat;
   background-position: center center;
   background-size: cover;
@@ -241,7 +243,8 @@ div {
   background-position: center center;
   background-size: cover;
 }
-.saves-list-hexagon:nth-child(2n) {
+.saves-list-hexagon:nth-child(2n),
+.saves-list-hexagon-invalid:nth-child(2n) {
   margin: 0 -3.568024663vw; /* h/sqrt(3)/2 */
   margin-top: 6.18vw;
 }

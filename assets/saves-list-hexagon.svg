@@ -11,9 +11,9 @@
    inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
    id="svg8"
    version="1.1"
-   viewBox="0 0 21.805944 18.885023"
-   height="18.885023mm"
-   width="21.805944mm">
+   viewBox="0 0 20.461877 17.721006"
+   height="17.721006mm"
+   width="20.461878mm">
   <defs
      id="defs2">
     <filter
@@ -203,8 +203,8 @@
      inkscape:document-rotation="0"
      inkscape:current-layer="layer1"
      inkscape:document-units="mm"
-     inkscape:cy="41.062929"
-     inkscape:cx="53.800544"
+     inkscape:cy="43.948252"
+     inkscape:cx="51.2617"
      inkscape:zoom="7.9195959"
      inkscape:pageshadow="2"
      inkscape:pageopacity="0.0"
@@ -215,15 +215,15 @@
     <sodipodi:guide
        id="guide892"
        orientation="0,-1"
-       position="5.9029758,18.103023" />
+       position="5.2309399,17.521006" />
     <sodipodi:guide
        id="guide894"
        orientation="0,-1"
-       position="0.94213313,9.374947" />
+       position="0.27009743,8.7929301" />
     <sodipodi:guide
        id="guide1342"
        orientation="1,0"
-       position="10.902972,9.442512" />
+       position="10.230936,8.8604951" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -233,19 +233,19 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
   <g
-     transform="translate(0.90297583,0.78200001)"
+     transform="translate(0.23094011,0.2)"
      id="layer1"
      inkscape:groupmode="layer"
      inkscape:label="Layer 1">
     <path
        sodipodi:nodetypes="ccccccc"
        d="M 5,0 H 15 L 20,8.66 15,17.321 5,17.320508 0,8.660254 Z"
-       style="fill:#f44336;fill-opacity:1;stroke:#000000;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       style="fill:#c9221e;fill-opacity:1;stroke:#9e2224;stroke-width:0.4;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
        id="rect833" />
   </g>
 </svg>

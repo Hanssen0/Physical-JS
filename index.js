@@ -687,7 +687,7 @@ function OnLanguageChange(callback) {
       language_callbacks.forEach((v) => v(language));
     });
     let save_button = new Tag("#SaveButton");
-    let hl = new HexagonsList(2, 4, 2, 7);
+    let hl = new HexagonsList(0, 4, 0, 6);
     let number = 0;
     save_button.On("click", () => {
       let data = physical.GetData();
