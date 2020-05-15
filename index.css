@@ -260,3 +260,117 @@ div {
 .hidden {
   display: none;
 }
+#Animation,
+#InAnimation {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+@keyframes scaleout-1 {
+  from {
+    width: 8vmax;
+    height: 8vmax;
+    box-shadow: 0 0 20px 6vmax #9e2224;
+  }
+  to {
+    width: 132vmax;
+    height: 132vmax;
+    box-shadow: 0 0 20px 10vmax #9e2224;
+  }
+}
+@keyframes scaleout-2 {
+  from {
+    width: 8vmax;
+    height: 8vmax;
+    box-shadow: 0 0 20px 6vmax #222;
+  }
+  to {
+    width: 132vmax;
+    height: 132vmax;
+    box-shadow: 0 0 20px 10vmax #222;
+  }
+}
+@keyframes scaleout-3 {
+  from {
+    width: 8vmax;
+    height: 8vmax;
+    box-shadow: 0 0 20px 6vmax #eee;
+  }
+  to {
+    width: 132vmax;
+    height: 132vmax;
+    box-shadow: 0 0 20px 10vmax #eee;
+  }
+}
+@keyframes in-scaleout-1 {
+  from {
+    width: 0;
+    height: 0;
+    box-shadow: 0 0 20px 0 #9e2224;
+  }
+  to {
+    width: 7vmax;
+    height: 7vmax;
+    box-shadow: 0 0 20px 5vmax #9e2224;
+  }
+}
+@keyframes in-scaleout-2 {
+  from {
+    width: 0;
+    height: 0;
+    box-shadow: 0 0 20px 0 #222;
+  }
+  to {
+    width: 7vmax;
+    height: 7vmax;
+    box-shadow: 0 0 20px 5vmax #222;
+  }
+}
+@keyframes in-scaleout-3 {
+  from {
+    width: 0;
+    height: 0;
+    box-shadow: 0 0 20px 0 #eee;
+  }
+  to {
+    width: 7vmax;
+    height: 7vmax;
+    box-shadow: 0 0 20px 5vmax #eee;
+  }
+}
+#Animation div,
+#InAnimation div {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+.impact-ring-1 {
+  background: #9e2224;
+}
+.impact-ring-2 {
+  background: #222;
+}
+.impact-ring-3 {
+  background: #eee;
+}
+@keyframes startimpact {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+#static-ring {
+  width: 24vmax;
+  height: 24vmax;
+  animation: 0.3s ease-out startimpact forwards;
+  background: url(assets/red-ring.svg);
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+}

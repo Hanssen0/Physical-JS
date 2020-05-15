@@ -105,9 +105,12 @@ class Tag {
     if (this._on_.hide === undefined) this._on_.hide = new Set();
     this._on_.hide.add(callback);
   }
+  Reflow() {
+    this._tag_.offsetHeight;
+  }
   RestartAnimation() {
     this.Css("animation", "none");
-    this._tag_.offsetHeight;
+    this.Reflow();
     this.Css("animation", null);
   }
   PositionTo(father) {
@@ -622,6 +625,74 @@ class HexagonsList {
     item.Active(content);
   }
 }
+let animation = new Tag("#Animation");
+let inanimation = new Tag("#InAnimation");
+function GetImpactRing(type, callback) {
+  let div = new Tag("");
+  div.AddClass("impact-ring-" + type);
+  div.On("animationend", () => callback(div));
+  return div;
+}
+function EmitInImpactRing(type, callback) {
+  let div = GetImpactRing(type, callback);
+  div.Css(
+    "animation",
+    (Math.random()*0.2 + 0.1) + "s linear in-scaleout-" + type + " forwards");
+  inanimation.Append(div);
+}
+function EmitImpactRing(type, callback) {
+  let div = GetImpactRing(type, callback);
+  div.Css(
+    "animation",
+    (Math.random()*0.3 + 0.5) + "s linear scaleout-" + type + " forwards");
+  animation.Append(div);
+}
+function EmitImpactRings(emiter, number, callback) {
+  let type = 0;
+  let time = 0;
+  let now;
+  let nown;
+  let count = number;
+  while (number-- !== 0) {
+    type += 1 + Math.floor(2*Math.random());
+    type %= 3;
+    if (number === 0) type = 0;
+    let t = type;
+    let n = number;
+    setTimeout(
+      () => emiter(t + 1, (tag) => {
+        if (now === undefined) {
+          now = tag;
+          nown = n;
+        } else {
+          if (nown > n) {
+            now.Remove();
+            now = tag;
+            nown = n;
+          } else {
+            tag.Remove();
+          }
+        }
+        if (--count === 0) callback();
+        console.log(count);
+      }),
+      time);
+    time += Math.random()*100 + 100;
+  }
+}
+let ring = new Tag("#static-ring");
+function OneImpact(callback) {
+  ring.Show();
+  let should_emit = false;
+  let emit = () => {
+    if (should_emit) callback();
+    should_emit = true;
+  };
+  ring.On("animationend", () => {
+    EmitImpactRings(EmitInImpactRing, 5, emit);
+    setTimeout(() => EmitImpactRings(EmitImpactRing, 5, emit), 200);
+  });
+}
 let language_callbacks = new Set();
 function OnLanguageChange(callback) {
   language_callbacks.add(callback);
@@ -700,7 +771,7 @@ function OnLanguageChange(callback) {
       if (has_shown) {
         saves_list.Hide();
       } else {
-        saves_list.Show();
+        OneImpact(() => saves_list.Show());
       }
       has_shown = !has_shown;
     });
