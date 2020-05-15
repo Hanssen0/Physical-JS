@@ -581,13 +581,21 @@ class RandomMove {
 class SaveHexagon {
   constructor(tag) {
     this._tag_ = tag;
+    this._content_ = new Tag("");
+    tag.Append(this._content_);
+    this._svg_ = new Tag("object");
+    tag.Append(this._svg_);
+    this._svg_.Attribute("type", "image/svg+xml");
+    this._svg_.Class("saves-list-hexagon-svg");
+    this._svg_.loaded = false;
   }
   Active(content) {
-    this._tag_.AddClass("saves-list-hexagon-active");
-    this._tag_.HTML(content);
+    this._svg_.On("load", () => this._svg_.loaded = true);
+    this._svg_.Attribute("data", "assets/saves-list-hexagon.svg");
+    this._content_.HTML(content);
   }
   Deactive() {
-    this._tag_.Class("saves-list-hexagon");
+    this._svg_.Attribute("data", "assets/saves-list-hexagon-empty.svg");
   }
   IsInside(p) {
     let size = this._tag_.ClientSize();
@@ -600,6 +608,27 @@ class SaveHexagon {
       points.push(point.PlusEqual(center));
     }
     return InsidePolygon(position, points);
+  }
+  OnSVGPrepared(callback) {
+    if (this._svg_.loaded) {
+      callback();
+    } else {
+      this._svg_.On("load", callback);
+    }
+  }
+  MouseOver() {
+    this.OnSVGPrepared(() => {
+      let doc = this._svg_._tag_.contentDocument;
+      let path = doc.getElementById("rect833");
+      path.style.fill = "#fff";
+    });
+  }
+  MouseOut() {
+    this.OnSVGPrepared(() => {
+      let doc = this._svg_._tag_.contentDocument;
+      let path = doc.getElementById("rect833");
+      path.style.fill = "#ba000d";
+    });
   }
 }
 class HexagonsList {
@@ -641,6 +670,20 @@ class HexagonsList {
         this._current_.x_ = 0;
       }
     }
+    let over = false;
+    Tag.Body.OnMouseMove((pos) => {
+      if (item.IsInside(pos)) {
+        if (!over) {
+          item.MouseOver();
+          over = true;
+        }
+      } else {
+        if (over) {
+          item.MouseOut();
+          over = false;
+        }
+      }
+    });
     Tag.Body.OnClick((pos) => {
       if (item.IsInside(pos)) click();
     });
@@ -713,7 +756,7 @@ function OnLanguageChange(callback) {
     });
     let save_button = new Tag("#SaveButton");
     let hl = new HexagonsList("SavesList", 4, 7);
-    hl.OnAdd((tag) => rm.Add(tag, 4, 0.3));
+    hl.OnAdd((tag) => rm.Add(tag, 2, 0.3));
     let number = 0;
     save_button.On("click", () => {
       let data = physical.GetData();

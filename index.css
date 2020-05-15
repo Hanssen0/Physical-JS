@@ -230,23 +230,14 @@ div {
   width: 14.27209865vw; /* 2*h/sqrt(3) */
   height: 12.36vw;
 }
-.saves-list-hexagon,
-.saves-list-hexagon-invalid {
-  /*background: url(assets/saves-list-hexagon-empty.svg);*/
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-}
-.saves-list-hexagon-active {
-  background: url(assets/saves-list-hexagon.svg);
-  background-repeat: no-repeat;
-  background-position: center center;
-  background-size: cover;
-}
 .saves-list-hexagon:nth-child(2n),
 .saves-list-hexagon-invalid:nth-child(2n) {
   align-self: flex-end;
   margin: 0 -3.568024663vw; /* h/sqrt(3)/2 */
+}
+.saves-list-hexagon-svg {
+  width: 100%;
+  height: 100%;
 }
 .hexagon-row {
   align-items: flex-start;
