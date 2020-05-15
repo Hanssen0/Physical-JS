@@ -48,7 +48,8 @@ class Tag {
     if (value === undefined) return this._tag_[name];
     this._tag_[name] = value;
   }
-  SetClass(class_name) {
+  Class(class_name) {
+    if (class_name === undefined) return this._tag_.className;
     this._tag_.className = class_name;
   }
   AddClass(class_name) {
@@ -586,11 +587,11 @@ class SaveHexagon {
     this._tag_.HTML(content);
   }
   Deactive() {
-    this._tag_.SetClass("saves-list-hexagon");
+    this._tag_.Class("saves-list-hexagon");
   }
-  IsInside(mouse) {
+  IsInside(p) {
     let size = this._tag_.ClientSize();
-    let position = mouse.MinusEqual(this._tag_.PositionTo(Tag.Body));
+    let position = p.MinusEqual(this._tag_.PositionTo(Tag.Body));
     let points = [];
     let center = size.Multiply(0.5);
     for (let i = 0; i < 6; ++i) {
@@ -602,18 +603,42 @@ class SaveHexagon {
   }
 }
 class HexagonsList {
-  constructor(start_row, end_row, start_column, end_column) {
-    this._area_ = [start_row, end_row, start_column, end_column];
-    this._current_ = new Vector2D(start_row, start_column);
+  constructor(id, row, column) {
+    this._current_ = new Vector2D(0, 0);
+    this._nodes_ = [];
+    this._list_ = new Tag("#" + id);
+    while (row--) {
+      let row_tag = new Tag("");
+      row_tag.Class("hexagon-row");
+      this._list_.Append(row_tag);
+      let row_tags = [];
+      for (let i = 0; i < column; ++i) {
+        let column_tag = new Tag("");
+        if (row === 0 && i%2 === 1) {
+          column_tag.Class("saves-list-hexagon-invalid");
+        } else {
+          column_tag.Class("saves-list-hexagon");
+          row_tags.push(column_tag);
+        }
+        row_tag.Append(column_tag);
+      }
+      this._nodes_.push(row_tags);
+    }
+    this._on_ = {};
+  }
+  OnAdd(callback) {
+    if (this._on_.add === undefined) this._on_.add = [];
+    this._on_.add.push(callback);
   }
   Add(content, click) {
-    let rows = document.getElementsByClassName("hexagon-row");
-    let items = rows[this._current_.x_].getElementsByClassName("saves-list-hexagon");
-    let item = new SaveHexagon(new Tag(items[this._current_.y_]));
-    if (++this._current_.y_ > this._area_[3]) {
-      this._current_.y_ = this._area_[2];
-      if (++this._current_.x_ > this._area_[1]) {
-        this._current_.x_ = this._area_[0];
+    let items = this._nodes_[this._current_.x_];
+    let tag = items[this._current_.y_];
+    this._on_.add.forEach((v) => v(tag));
+    let item = new SaveHexagon(tag);
+    if (++this._current_.y_ >= items.length) {
+      this._current_.y_ = 0;
+      if (++this._current_.x_ >= this._nodes_.length) {
+        this._current_.x_ = 0;
       }
     }
     Tag.Body.OnClick((pos) => {
@@ -687,7 +712,8 @@ function OnLanguageChange(callback) {
       language_callbacks.forEach((v) => v(language));
     });
     let save_button = new Tag("#SaveButton");
-    let hl = new HexagonsList(2, 4, 2, 7);
+    let hl = new HexagonsList("SavesList", 4, 7);
+    hl.OnAdd((tag) => rm.Add(tag, 4, 0.3));
     let number = 0;
     save_button.On("click", () => {
       let data = physical.GetData();
