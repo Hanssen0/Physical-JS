@@ -97,7 +97,8 @@ class Tag {
       this._on_.hide.clear();
     }
   }
-  Show() {
+  Show(display) {
+    if (display !== undefined) this._display_ = display;
     if (this._display_ === undefined) this._display_ = "block";
     this.Css("display", this._display_);
   }
@@ -625,74 +626,6 @@ class HexagonsList {
     item.Active(content);
   }
 }
-let animation = new Tag("#Animation");
-let inanimation = new Tag("#InAnimation");
-function GetImpactRing(type, callback) {
-  let div = new Tag("");
-  div.AddClass("impact-ring-" + type);
-  div.On("animationend", () => callback(div));
-  return div;
-}
-function EmitInImpactRing(type, callback) {
-  let div = GetImpactRing(type, callback);
-  div.Css(
-    "animation",
-    (Math.random()*0.2 + 0.1) + "s linear in-scaleout-" + type + " forwards");
-  inanimation.Append(div);
-}
-function EmitImpactRing(type, callback) {
-  let div = GetImpactRing(type, callback);
-  div.Css(
-    "animation",
-    (Math.random()*0.3 + 0.5) + "s linear scaleout-" + type + " forwards");
-  animation.Append(div);
-}
-function EmitImpactRings(emiter, number, callback) {
-  let type = 0;
-  let time = 0;
-  let now;
-  let nown;
-  let count = number;
-  while (number-- !== 0) {
-    type += 1 + Math.floor(2*Math.random());
-    type %= 3;
-    if (number === 0) type = 0;
-    let t = type;
-    let n = number;
-    setTimeout(
-      () => emiter(t + 1, (tag) => {
-        if (now === undefined) {
-          now = tag;
-          nown = n;
-        } else {
-          if (nown > n) {
-            now.Remove();
-            now = tag;
-            nown = n;
-          } else {
-            tag.Remove();
-          }
-        }
-        if (--count === 0) callback();
-        console.log(count);
-      }),
-      time);
-    time += Math.random()*100 + 100;
-  }
-}
-let ring = new Tag("#static-ring");
-function OneImpact(callback) {
-  ring.Show();
-  let should_emit = false;
-  let emit = () => {
-    if (should_emit) callback();
-    should_emit = true;
-  };
-  ring.On("animationend", () => {
-    EmitImpactRings(EmitInImpactRing, 5, emit);
-    setTimeout(() => EmitImpactRings(EmitImpactRing, 5, emit), 200);
-  });
-}
 let language_callbacks = new Set();
 function OnLanguageChange(callback) {
   language_callbacks.add(callback);
@@ -766,12 +699,17 @@ function OnLanguageChange(callback) {
     });
     let menu_button = new Tag("#MenuButton");
     let saves_list = new Tag("#SavesList");
+    let transition_animation = new Tag("#TransitionAnimation");
+    let count = 0;
+    new Tag("#TransitionRing6").On("animationend", () => {
+      if (++count === 2) saves_list.Show();
+    });
     let has_shown = false;
     menu_button.OnClick(() => {
       if (has_shown) {
         saves_list.Hide();
       } else {
-        OneImpact(() => saves_list.Show());
+        transition_animation.Show("flex");
       }
       has_shown = !has_shown;
     });

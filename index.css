@@ -370,7 +370,108 @@ div {
   height: 24vmax;
   animation: 0.3s ease-out startimpact forwards;
   background: url(assets/red-ring.svg);
+  background: none;
   background-size: cover;
   background-position: center center;
   background-repeat: no-repeat;
+}
+.transition-animation {
+  background-position: center;
+  background-size: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(20, 20, 20, 0.3),
+              0 5px 10px rgba(20, 20, 20, 0.3);
+  transform: scale(0);
+}
+@keyframes transition-ring-normal {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+#TransitionRing1 {
+  height: 100vmax;
+  width: 100vmax; 
+  background-color: #5e35b1;
+  background-image: url(assets/ring-4.svg); 
+  animation: 1s 1s ease-out transition-ring-normal forwards;
+}
+#TransitionRing2 {
+  height: 87vmax;
+  width: 87vmax; 
+  background-color: #e53935;
+  background-image: url(assets/red-ring.svg);
+  animation: 1s 1.382s ease-out transition-ring-normal forwards;
+}
+#TransitionRing3 {
+  height: 68vmax;
+  width: 68vmax; 
+  background-color: #f4511e;
+  background-image: url(assets/ring-3.svg);
+  animation: 1s 1.764s ease-out transition-ring-normal forwards;
+}
+#TransitionRing4 {
+  height: 43vmax;
+  width: 43vmax; 
+  background-color: #d81b30;
+  background-image: url(assets/ring-2.svg);
+  animation: 1s 2.146s ease-out transition-ring-normal forwards;
+}
+#TransitionRing5 {
+  height: 35vmax;
+  width: 35vmax; 
+  background-color: #1e88e5;
+  background-image: url(assets/ring-1.svg);
+  animation: 1s 2.528s ease-out transition-ring-normal forwards;
+}
+@keyframes transition-ring-6-0 {
+  from {
+    height: 0;
+    width: 0;
+    background: none;
+    transform: none;
+    border: #9fa8da 0 solid;
+  }
+  32.8% {
+    height: 16vmax;
+    width: 16vmax; 
+    border: #9fa8da 2vmax solid;
+    transform: none;
+  }
+  99.99% {
+    border: #9fa8da 10vmax solid;
+    height: 0;
+    width: 0; 
+    background: none;
+    transform: none;
+  }
+  to {
+    border: none;
+    height: 20vmax;
+    width: 20vmax;
+    background: #9fa8da;
+    transform: none;
+  }
+}
+@keyframes transition-ring-6-1 {
+  from {
+    height: 20vmax;
+    width: 20vmax;
+  }
+  to {
+    height: 144vmax;
+    width: 144vmax;
+  }
+}
+#TransitionRing6 {
+  animation:
+    1s ease-in-out transition-ring-6-0,
+    1s 4s ease-in-out transition-ring-6-1 forwards;
+  border: none;
+  height: 20vmax;
+  width: 20vmax;
+  background: #9fa8da;
+  transform: none;
 }
